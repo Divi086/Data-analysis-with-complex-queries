@@ -1,0 +1,32 @@
+
+SELECT emp_id, sale_date, amount
+FROM sales
+WHERE amount > (
+    SELECT AVG(amount) FROM sales
+);
+
+-- Common Table Expression (CTE): Total sales by employee
+WITH total_sales AS (
+    SELECT emp_id, SUM(amount) AS total_amount
+    FROM sales
+    GROUP BY emp_id
+)
+SELECT e.emp_name, t.total_amount
+FROM total_sales t
+JOIN employees e ON t.emp_id = e.emp_id;
+
+-- Window Function: Running total by employee
+SELECT 
+    emp_id,
+    sale_date,
+    amount,
+    SUM(amount) OVER (PARTITION BY emp_id ORDER BY sale_date) AS running_total
+FROM sales;
+
+-- Monthly Trend Analysis: Average sales per month
+SELECT 
+    DATE_TRUNC('month', sale_date) AS sale_month,
+    AVG(amount) AS avg_monthly_sale
+FROM sales
+GROUP BY sale_month
+ORDER BY sale_month;
